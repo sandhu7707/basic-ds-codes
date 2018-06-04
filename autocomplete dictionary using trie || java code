@@ -1,0 +1,158 @@
+// autocomplete dictionary using trie
+
+import java.lang.*;
+import java.io.*;
+import java.util.*;
+class node{
+    char s;
+    node[] child = new node[26];                  //all 26 alphabets
+    node parent;
+    int flag;
+}
+class trie{
+    public node root = new node();
+    static int counter_find_word = 0;
+    trie(){
+    root.s = '*';
+    root.parent = null;
+    root.flag = 0;
+    for(int j=0;j<26;j++)
+        root.child[j] = null;
+    }
+    void insert(String x){
+        int i;
+        node n = new node();
+        n = root;
+        for(i=0;i<x.length();i++){
+            node temp = new node();
+            temp.s = x.charAt(i);
+            temp.parent = null;
+            temp.flag = 0;
+            int l = (int)x.charAt(i) - 97;                //for indexing children in specific manner
+            for(int j=0;j<26;j++)
+                temp.child[j] = null;
+            if(n.child[l] == null){
+                n.child[l] = temp;
+                temp.parent = n;
+                n = n.child[l];
+            }
+            else{
+                n = n.child[l];
+            }
+        }
+        n.flag = 1;
+    }
+    void find(String x){
+        int counter = 0;
+        int flag = 0;
+        int i;
+        node n = new node();
+        n = root;
+        for(i=0;i<x.length();i++){
+            int l = (int)x.charAt(i) - 97;
+            if(n.child[l] != null){
+                n = n.child[l];
+            }
+            else{
+                flag = -1;
+                break;
+            }
+        }
+        if(flag == -1)
+            System.out.println("Not Found");
+        else{
+            find_word(n);
+        }
+    }
+    void find_word(node n){
+        int flag = 0;
+        int i;
+        if(counter_find_word == 10)
+            flag = -1;
+        if(flag == 0){
+            for(i=0;i<26;i++){
+                if(n.child[i]!=null && n.child[i].flag == 1){
+                    counter_find_word++;
+                    show(n.child[i]);
+                }
+                else if(n.child[i]!=null)
+                    find_word(n.child[i]);
+            }
+        }
+    }
+    void delete(String x){
+        node n = new node();
+        n = root;
+        int flag = 0;
+        int count = 0;
+        int i,l=0;
+        for(i=0;i<x.length();i++){
+            l = (int)x.charAt(i) - 97;
+            if(n.child[l]!=null)
+                n = n.child[l];
+            else{
+                flag = -1;
+                break;
+            }
+        }
+        if(n.flag == 0)
+            flag = -1;            //to check if word exists
+        for(i=0;i<26;i++){
+            if(n.child[i]!=null)
+                flag = -2;
+        }
+        if(flag==-2)
+            n.flag = 0;        //for word in word
+        if(flag == 0){
+        while(n!=root){
+            node temp = new node();
+            temp = n;
+            for(i=0;i<26;i++){
+                if(n.parent.child[i]!=null)
+                    count++;
+                if(n.parent.child[i] != null && n.parent.child[i].s == temp.s)
+                    l = i;
+            }
+            n.parent.child[l] = null;
+            n = n.parent;
+            if(count>1)
+                break;
+        }
+        }
+    }
+    void show(node n){
+        String s = "";
+        StringBuilder r = new StringBuilder();                // to reverse the string
+        while(n!=root){
+            s = s + n.s;
+            n = n.parent;
+        }
+        r.append(s);
+        r = r.reverse();
+        System.out.println(r);
+    }
+}
+class trie_test{
+    public static void main(String arg[]){
+        trie t = new trie();
+        t.insert("cow");
+        t.insert("card");
+        t.insert("cart");
+        t.insert("rotten");
+        t.insert("rat");
+        t.insert("car");
+        t.insert("cat");
+        t.insert("ceiling");
+        t.insert("confidential");
+        t.insert("cute");
+        t.insert("cera");
+        t.insert("cherry");
+        t.insert("czeeee");
+        t.insert("cimmeee");
+        t.insert("cila");
+        t.delete("car");
+        t.find("rod");
+        t.find("ca");
+    }
+}
+
